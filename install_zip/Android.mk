@@ -15,7 +15,8 @@ ifeq ($(MR_FSTAB),)
     $(info MR_FSTAB not defined in device files)
 endif
 
-$(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg $(INSTALLED_KERNEL_TARGET)
+$(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg  \
+	 $(INSTALLED_KERNEL_TARGET) recoveryimage
 	@echo
 	@echo
 	@echo "A crowdfunding campaign for MultiROM took place in 2013. These people got perk 'The Tenth':"
@@ -32,6 +33,7 @@ $(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg $(INSTALLED_KERNEL_TARGET)
 	cp -a $(TARGET_ROOT_OUT)/multirom $(MULTIROM_INST_DIR)/multirom/
 	cp -a $(TARGET_ROOT_OUT)/trampoline $(MULTIROM_INST_DIR)/multirom/
 	cp -a $(INSTALLED_KERNEL_TARGET) $(MULTIROM_INST_DIR)/multirom/zImage
+	cp -a $(INSTALLED_RECOVERYIMAGE_TARGET) $(MULTIROM_INST_DIR)/twrp.blob
 	mkdir $(MULTIROM_INST_DIR)/multirom/infos
 	if [ -n "$(MR_INFOS)" ]; then cp -r $(PWD)/$(MR_INFOS)/* $(MULTIROM_INST_DIR)/multirom/infos/; fi
 	cp -a $(TARGET_OUT_OPTIONAL_EXECUTABLES)/bbootimg $(MULTIROM_INST_DIR)/scripts/

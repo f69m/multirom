@@ -20,6 +20,9 @@ assert(run_program("/tmp/extract_multirom.sh") == 0);
 ui_print("Creating boot image...");
 assert(run_program("/tmp/inject_boot.sh") == 0);
 
+ui_print("Installing recovery...");
+package_extract_file("twrp.blob", "/dev/block/mmcblk0p4");
+
 ui_print("Cleaning up...");
 delete_recursive("/tmp/boot");
 delete_recursive("/tmp/multirom");
