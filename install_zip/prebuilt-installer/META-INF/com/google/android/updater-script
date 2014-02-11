@@ -17,7 +17,7 @@ set_perm(0, 0, 0777, "/tmp/extract_multirom.sh");
 set_perm(0, 0, 0777, "/tmp/inject_boot.sh");
 
 assert(run_program("/tmp/extract_multirom.sh") == 0);
-ui_print("Injecting boot image...");
+ui_print("Creating boot image...");
 assert(run_program("/tmp/inject_boot.sh") == 0);
 
 ui_print("Cleaning up...");
@@ -27,7 +27,6 @@ delete("/tmp/bbootimg");
 delete("/tmp/bootimg.cfg");
 delete("/tmp/initrd.img");
 delete("/tmp/zImage");
-delete("/tmp/boot.img");
 delete("/tmp/dtb.img");
 delete("/tmp/second.img");
 delete("/tmp/newboot.img");

@@ -12,8 +12,22 @@ if [ ! -e "$BOOT_DEV" ]; then
     return 1
 fi
 
-dd if=$BOOT_DEV of=/tmp/boot.img
-/tmp/bbootimg -x /tmp/boot.img /tmp/bootimg.cfg /tmp/zImage /tmp/initrd.img /tmp/second.img /tmp/dtb.img
+if [ -d "/data/media/multirom" ] ; then
+    base="/data/media/multirom"
+elif [ -d "/data/media/0/multirom" ] ; then
+    base="/data/media/0/multirom"
+else
+    echo "Cannot find MultiROM base directory!"
+    return 1
+fi
+
+bootimg=$base/roms/Primary/boot.img
+if [ ! -r $bootimg ]; then
+	dd if=$BOOT_DEV of=$bootimg
+	chmod 644 $bootimg
+fi
+
+/tmp/bbootimg -x $bootimg /tmp/bootimg.cfg /tmp/zImage /tmp/initrd.img /tmp/second.img /tmp/dtb.img
 if [ ! -f /tmp/zImage ] ; then
     echo "Failed to extract boot.img"
     return 1
@@ -92,10 +106,10 @@ if [ -f "dtb.img" ]; then
     dtb_cmd="-d dtb.img"
 fi
 
-/tmp/bbootimg --create newboot.img -f bootimg.cfg -k zImage -r initrd.img $dtb_cmd
+/tmp/bbootimg --create newboot.img -f bootimg.cfg -k /tmp/multirom/zImage -r initrd.img $dtb_cmd
 
 if [ ! -e "/tmp/newboot.img" ] ; then
-    echo "Failed to inject boot.img!"
+    echo "Failed to create new boot.img!"
     return 1
 fi
 

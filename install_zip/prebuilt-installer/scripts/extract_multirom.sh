@@ -19,6 +19,10 @@ else
     chown media_rw:media_rw "$base/roms"
     chmod 777 "$base/roms"
 
+    mkdir "$base/roms/Primary"
+    chown media_rw:media_rw "$base/roms/Primary"
+    chmod 777 "$base/roms/Primary"
+
     touch "$base/.nomedia"
     chown media_rw:media_rw "$base/.nomedia"
 fi
