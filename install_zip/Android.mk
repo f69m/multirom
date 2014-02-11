@@ -8,11 +8,14 @@ MULTIROM_INST_DIR := $(PRODUCT_OUT)/multirom_installer
 multirom_binary := $(TARGET_ROOT_OUT)/multirom
 trampoline_binary := $(TARGET_ROOT_OUT)/trampoline
 
+# Out-of-tree, used if it exists
+signapk_jar := ../zipsign/signapk.jar
+
 ifeq ($(MR_FSTAB),)
     $(info MR_FSTAB not defined in device files)
 endif
 
-$(MULTIROM_ZIP_TARGET): multirom trampoline signapk bbootimg
+$(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg
 	@echo
 	@echo
 	@echo "A crowdfunding campaign for MultiROM took place in 2013. These people got perk 'The Tenth':"
@@ -36,9 +39,9 @@ $(MULTIROM_ZIP_TARGET): multirom trampoline signapk bbootimg
 	echo $(MR_RD_ADDR) > $(MULTIROM_INST_DIR)/scripts/rd_addr
 	echo "$(MR_USE_MROM_FSTAB)" > $(MULTIROM_INST_DIR)/scripts/use_mrom_fstab
 	$(install_zip_path)/make_updater_script.sh $(TARGET_DEVICE) $(MULTIROM_INST_DIR)/META-INF/com/google/android "Installing MultiROM for"
-	rm -f $(MULTIROM_ZIP_TARGET).zip $(MULTIROM_ZIP_TARGET)-unsigned.zip
+	rm -f $(MULTIROM_ZIP_TARGET).zip
 	cd $(MULTIROM_INST_DIR) && zip -qr ../$(notdir $@)-unsigned.zip *
-	java -jar $(HOST_OUT_JAVA_LIBRARIES)/signapk.jar $(DEFAULT_SYSTEM_DEV_CERTIFICATE).x509.pem $(DEFAULT_SYSTEM_DEV_CERTIFICATE).pk8 $(MULTIROM_ZIP_TARGET)-unsigned.zip $(MULTIROM_ZIP_TARGET).zip
+	if [ -r "$(signapk_jar)" ]; then java -jar $(signapk_jar) $(DEFAULT_SYSTEM_DEV_CERTIFICATE).x509.pem $(DEFAULT_SYSTEM_DEV_CERTIFICATE).pk8 $(MULTIROM_ZIP_TARGET)-unsigned.zip $(MULTIROM_ZIP_TARGET).zip; else mv $(MULTIROM_ZIP_TARGET)-unsigned.zip $(MULTIROM_ZIP_TARGET).zip; fi
 	$(install_zip_path)/rename_zip.sh $(MULTIROM_ZIP_TARGET) $(TARGET_DEVICE) $(PWD)/$(multirom_local_path)/version.h
 	@echo ----- Made MultiROM ZIP installer -------- $@.zip
 
@@ -50,7 +53,7 @@ multirom_zip: $(MULTIROM_ZIP_TARGET)
 MULTIROM_UNINST_TARGET := $(PRODUCT_OUT)/multirom_uninstaller
 MULTIROM_UNINST_DIR := $(PRODUCT_OUT)/multirom_uninstaller
 
-$(MULTIROM_UNINST_TARGET): signapk bbootimg
+$(MULTIROM_UNINST_TARGET): bbootimg
 	@echo ----- Making MultiROM uninstaller ------
 	rm -rf $(MULTIROM_UNINST_DIR)
 	mkdir -p $(MULTIROM_UNINST_DIR)
@@ -61,7 +64,7 @@ $(MULTIROM_UNINST_TARGET): signapk bbootimg
 	$(install_zip_path)/make_updater_script.sh $(TARGET_DEVICE) $(MULTIROM_UNINST_DIR)/META-INF/com/google/android "MultiROM uninstaller -"
 	rm -f $(MULTIROM_UNINST_TARGET).zip $(MULTIROM_UNINST_TARGET)-unsigned.zip
 	cd $(MULTIROM_UNINST_DIR) && zip -qr ../$(notdir $@)-unsigned.zip *
-	java -jar $(HOST_OUT_JAVA_LIBRARIES)/signapk.jar $(DEFAULT_SYSTEM_DEV_CERTIFICATE).x509.pem $(DEFAULT_SYSTEM_DEV_CERTIFICATE).pk8 $(MULTIROM_UNINST_TARGET)-unsigned.zip $(MULTIROM_UNINST_TARGET).zip
+	if [ -r "$(signapk_jar)" ]; then java -jar $(signapk_jar) $(DEFAULT_SYSTEM_DEV_CERTIFICATE).x509.pem $(DEFAULT_SYSTEM_DEV_CERTIFICATE).pk8 $(MULTIROM_UNINST_TARGET)-unsigned.zip $(MULTIROM_UNINST_TARGET).zip; else mv $(MULTIROM_UNINST_TARGET)-unsigned.zip $(MULTIROM_UNINST_TARGET).zip; fi
 	@echo ----- Made MultiROM uninstaller -------- $@.zip
 
 .PHONY: multirom_uninstaller
