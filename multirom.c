@@ -135,7 +135,7 @@ int multirom(const char *rom_to_boot)
             // Two possible scenarios: this ROM has kexec-hardboot and target
             // ROM has boot image, so kexec it immediatelly or
             // reboot and then proceed as usuall
-            if(((M(rom->type) & MASK_KEXEC) || rom->has_bootimg) && rom->type != ROM_DEFAULT && multirom_has_kexec() == 0)
+            if(((M(rom->type) & MASK_KEXEC) || rom->has_bootimg) && multirom_has_kexec() == 0)
             {
                 to_boot = rom;
                 s.is_second_boot = 0;
@@ -898,7 +898,7 @@ int multirom_prepare_for_boot(struct multirom_status *s, struct multirom_rom *to
     int exit = EXIT_UMOUNT;
     int type = to_boot->type;
 
-    if(((M(type) & MASK_KEXEC) || to_boot->has_bootimg) && type != ROM_DEFAULT && s->is_second_boot == 0)
+    if(((M(type) & MASK_KEXEC) || to_boot->has_bootimg) && s->is_second_boot == 0)
     {
         if(multirom_load_kexec(s, to_boot) != 0)
             return -1;
@@ -1502,6 +1502,7 @@ int multirom_load_kexec(struct multirom_status *s, struct multirom_rom *rom)
 
     switch(rom->type)
     {
+        case ROM_DEFAULT:
         case ROM_ANDROID_INTERNAL:
         case ROM_ANDROID_USB_DIR:
         case ROM_ANDROID_USB_IMG:
