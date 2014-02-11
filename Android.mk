@@ -40,10 +40,10 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 
 LOCAL_STATIC_LIBRARIES := libcutils libc libm
 
-# clone libbootimg to /system/extras/ from
+# clone libbootimg to /external/ from
 # https://github.com/Tasssadar/libbootimg.git
 LOCAL_STATIC_LIBRARIES += libbootimg
-LOCAL_C_INCLUDES += system/extras/libbootimg/include
+LOCAL_C_INCLUDES += external/libbootimg/include
 
 # Defines from device files
 # Init default define values
