@@ -54,7 +54,7 @@
 #define KEXEC_BIN "kexec"
 #define NTFS_BIN "ntfs-3g"
 #define EXFAT_BIN "exfat-fuse"
-#define INTERNAL_ROM_NAME "Internal"
+#define INTERNAL_ROM_NAME "Primary"
 #define MAX_ROM_NAME_LEN 26
 #define LAYOUT_VERSION "/data/.layout_version"
 #define SECOND_BOOT_KMESG "MultiromSaysNextBootShouldBeSecondMagic108"
@@ -365,7 +365,7 @@ int multirom_default_status(struct multirom_status *s)
     DIR *d = opendir(roms_path);
     if(!d)
     {
-        ERROR("Failed to open Internal ROM's folder, creating one with ROM from internal memory...\n");
+        ERROR("Failed to open Primary ROM's folder, creating one with ROM from primary memory...\n");
         multirom_import_internal();
     }
     else
@@ -429,7 +429,7 @@ int multirom_default_status(struct multirom_status *s)
     s->current_rom = multirom_get_internal(s);
     if(!s->current_rom)
     {
-        ERROR("No internal rom found!\n");
+        ERROR("No primary rom found!\n");
         return -1;
     }
 
@@ -526,11 +526,11 @@ int multirom_load_status(struct multirom_status *s)
     s->current_rom = multirom_get_rom(s, current_rom, s->curr_rom_part);
     if(!s->current_rom)
     {
-        ERROR("Failed to select current rom (%s, part %s), using Internal!\n", current_rom, s->curr_rom_part);
+        ERROR("Failed to select current rom (%s, part %s), using Primary!\n", current_rom, s->curr_rom_part);
         s->current_rom = multirom_get_internal(s);
         if(!s->current_rom)
         {
-            ERROR("No internal rom found!\n");
+            ERROR("No primary rom found!\n");
             return -1;
         }
     }
