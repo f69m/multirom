@@ -119,20 +119,13 @@ void handle_abs_event(struct input_event *ev)
             break;
         }
         case ABS_MT_POSITION_X:
-        case ABS_MT_POSITION_Y:
-        {
-            if((ev->code == ABS_MT_POSITION_X) ^ (mt_switch_xy != 0))
-            {
                 mt_events[mt_slot].orig_x = calc_mt_pos(ev->value, mt_range_x, mt_screen_res[0]);
-                if(mt_switch_xy)
-                    mt_events[mt_slot].orig_x = mt_screen_res[0] - mt_events[mt_slot].orig_x;
-            }
-            else
-                mt_events[mt_slot].orig_y = calc_mt_pos(ev->value, mt_range_y, mt_screen_res[1]);
-
             mt_events[mt_slot].changed |= TCHNG_POS;
             break;
-        }
+        case ABS_MT_POSITION_Y:
+			mt_events[mt_slot].orig_y = calc_mt_pos(ev->value, mt_range_y, mt_screen_res[1]);
+			mt_events[mt_slot].changed |= TCHNG_POS;
+			break;
     }
 }
 

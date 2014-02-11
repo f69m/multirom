@@ -40,7 +40,6 @@
 int mt_screen_res[2] = { 0 };
 touch_event mt_events[MAX_FINGERS];
 int mt_slot = 0;
-int mt_switch_xy = 0;
 int mt_range_x[2] = { 0 };
 int mt_range_y[2] = { 0 };
 
@@ -74,15 +73,6 @@ static void get_abs_min_max(int fd)
 
     if(ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), abs) >= 0)
         memcpy(mt_range_y, abs+1, 2*sizeof(int));
-
-
-    mt_switch_xy = (mt_range_x[1] > mt_range_y[1]);
-    if(mt_switch_xy)
-    {
-        memcpy(abs, mt_range_x, 2*sizeof(int));
-        memcpy(mt_range_x, mt_range_y, 2*sizeof(int));
-        memcpy(mt_range_y, abs, 2*sizeof(int));
-    }
 }
 
 static int ev_init(void)
