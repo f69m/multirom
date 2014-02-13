@@ -15,13 +15,15 @@ set_perm(0, 0, 0777, "/tmp/multirom/busybox");
 set_perm(0, 0, 0777, "/tmp/bbootimg");
 set_perm(0, 0, 0777, "/tmp/extract_multirom.sh");
 set_perm(0, 0, 0777, "/tmp/inject_boot.sh");
+set_perm(0, 0, 0777, "/tmp/install_recovery.sh");
 
 assert(run_program("/tmp/extract_multirom.sh") == 0);
 ui_print("Creating boot image...");
 assert(run_program("/tmp/inject_boot.sh") == 0);
 
 ui_print("Installing recovery...");
-package_extract_file("twrp.blob", "/dev/block/mmcblk0p4");
+package_extract_file("twrp.blob", "/tmp/twrp.blob");
+assert(run_program("/tmp/install_recovery.sh") == 0);
 
 ui_print("Cleaning up...");
 delete_recursive("/tmp/boot");
@@ -38,5 +40,6 @@ delete("/tmp/inject_boot.sh");
 delete("/tmp/bootdev");
 delete("/tmp/rd_addr");
 delete("/tmp/use_mrom_fstab");
+delete("/tmp/twrp.blob");
 
 ui_print("Installation complete!");
