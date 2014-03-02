@@ -75,6 +75,8 @@ static pthread_t usb_refresh_thread;
 static pthread_mutex_t parts_mutex = PTHREAD_MUTEX_INITIALIZER;
 static void (*usb_refresh_handler)(void) = NULL;
 
+static void multirom_fill_kexec_utouch(struct multirom_status *s, struct multirom_rom *rom, struct kexec *kexec);
+
 int multirom_find_base_dir(void)
 {
     int i;
@@ -792,6 +794,16 @@ int multirom_get_rom_type(struct multirom_rom *rom)
             return ROM_LINUX_USB;
     }
 
+	// Handle Ubuntu Touch
+	if (!multirom_path_exists(b, "system.img") && !multirom_path_exists(b, "user-data") &&
+		!multirom_path_exists(b, "zImage") && !multirom_path_exists(b, "initrd.img"))
+	{
+		if(!rom->partition)
+			return ROM_UTOUCH_INTERNAL;
+		else
+			return ROM_UTOUCH_USB;
+	}
+
     // Handle Ubuntu 13.04 - deprecated
     if ((!multirom_path_exists(b, "root") && multirom_path_exists(b, "boot.img")) ||
        (!multirom_path_exists(b, "root.img") && rom->partition))
@@ -910,6 +922,8 @@ int multirom_prepare_for_boot(struct multirom_status *s, struct multirom_rom *to
         case ROM_DEFAULT:
         case ROM_LINUX_INTERNAL:
         case ROM_LINUX_USB:
+        case ROM_UTOUCH_INTERNAL:
+        case ROM_UTOUCH_USB:
             break;
         case ROM_ANDROID_USB_IMG:
         case ROM_ANDROID_USB_DIR:
@@ -1515,6 +1529,10 @@ int multirom_load_kexec(struct multirom_status *s, struct multirom_rom *rom)
             if(loop_mounted < 0)
                 goto exit;
             break;
+        case ROM_UTOUCH_INTERNAL:
+        case ROM_UTOUCH_USB:
+            multirom_fill_kexec_utouch(s, rom, &kexec);
+            break;
         default:
             ERROR("Unsupported rom type to kexec (%d)!\n", rom->type);
             goto exit;
@@ -1770,6 +1788,49 @@ int multirom_fill_kexec_linux(struct multirom_status *s, struct multirom_rom *ro
 exit:
     multirom_destroy_rom_info(info);
     return res;
+}
+
+static void multirom_fill_kexec_utouch(struct multirom_status *s, struct multirom_rom *rom, struct kexec *kexec)
+{
+	const char *base_path;
+
+	if (!rom->partition)
+		base_path = partition_dir;
+	else
+		base_path = rom->partition->mount_path;
+
+    char *str = find_boot_file("zImage", 0, rom->base_path);
+	if (!str) {
+		ERROR("Failed to find kernel image.\n");
+		return;
+	}
+	kexec_add_kernel(kexec, str, 1);
+	free(str);
+
+    str = find_boot_file("initrd.img", 0, rom->base_path);
+	if (!str) {
+		ERROR("Failed to find initrd image.\n");
+		return;
+	}
+	kexec_add_arg_prefix(kexec, "--initrd=", str);
+	free(str);
+
+	char cmdline[1536];
+	strcpy(cmdline, "--command-line=");
+
+	if (multirom_get_bootloader_cmdline(s, cmdline+strlen(cmdline), sizeof(cmdline)-strlen(cmdline)-1) == -1) {
+		ERROR("Failed to get bootloader cmdline.\n");
+		return;
+	}
+
+	if(sizeof(cmdline)-strlen(cmdline)-1 >= sizeof("console=tty1"))
+		strcat(cmdline, "console=tty1");
+
+	kexec_add_arg(kexec, cmdline);
+
+#ifdef MR_KEXEC_DTB
+	kexec_add_arg(kexec, "--dtb");
+#endif
 }
 
 #define INFO_LINE_BUFF 4096

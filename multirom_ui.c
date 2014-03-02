@@ -580,7 +580,7 @@ void multirom_ui_tab_rom_boot_btn(int action)
         return;
     }
 
-    if((m & MASK_KEXEC) && strchr(rom->name, ' '))
+    if((m & MASK_LINUX) && strchr(rom->name, ' '))
     {
         active_msgbox = fb_create_msgbox(550*DPI_MUL, 360*DPI_MUL, DRED);
         fb_msgbox_add_text(-1, 30*DPI_MUL, SIZE_BIG, "Error");
