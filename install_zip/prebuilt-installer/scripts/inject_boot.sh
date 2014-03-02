@@ -27,7 +27,7 @@ if [ ! -r $bootimg ]; then
 	chmod 644 $bootimg
 fi
 
-/tmp/bbootimg -x $bootimg /tmp/bootimg.cfg /tmp/zImage /tmp/initrd.img /tmp/second.img /tmp/dtb.img
+/tmp/bbootimg -x $base/boot.img /tmp/bootimg.cfg /tmp/zImage /tmp/initrd.img /tmp/second.img /tmp/dtb.img
 if [ ! -f /tmp/zImage ] ; then
     echo "Failed to extract boot.img"
     return 1
@@ -47,6 +47,10 @@ case "$magic" in
     02214C18)        # LZ4
         $LZ4 -d "../initrd.img" stdout | $BUSYBOX cpio -i
         rd_cmpr=CMPR_LZ4;
+        ;;
+    5D000080)        # LZMA
+        $BUSYBOX lzma -d -c "../initrd.img" | $BUSYBOX cpio -i
+        rd_cmpr=CMPR_GZIP;  # use GZIP to recompress
         ;;
     *)
         echo "invalid ramdisk magic $magic"
@@ -91,6 +95,9 @@ case $rd_cmpr in
     CMPR_LZ4)
         find . | $BUSYBOX cpio -o -H newc | $LZ4 stdin "../initrd.img"
         ;;
+    *)
+        echo "invalid ramdisk compression '$rd_cmpr'"
+        ;;
 esac
 
 echo "bootsize = 0x0" >> /tmp/bootimg.cfg
@@ -106,7 +113,7 @@ if [ -f "dtb.img" ]; then
     dtb_cmd="-d dtb.img"
 fi
 
-/tmp/bbootimg --create newboot.img -f bootimg.cfg -k /tmp/multirom/zImage -r initrd.img $dtb_cmd
+/tmp/bbootimg --create newboot.img -f bootimg.cfg -k zImage -r initrd.img $dtb_cmd
 
 if [ ! -e "/tmp/newboot.img" ] ; then
     echo "Failed to create new boot.img!"

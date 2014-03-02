@@ -16,7 +16,7 @@ ifeq ($(MR_FSTAB),)
 endif
 
 $(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg  \
-	 $(INSTALLED_KERNEL_TARGET) recoveryimage
+	 $(INSTALLED_BOOTIMAGE_TARGET) recoveryimage
 	@echo
 	@echo
 	@echo "A crowdfunding campaign for MultiROM took place in 2013. These people got perk 'The Tenth':"
@@ -32,7 +32,7 @@ $(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg  \
 	cp -a $(install_zip_path)/prebuilt-installer/* $(MULTIROM_INST_DIR)/
 	cp -a $(TARGET_ROOT_OUT)/multirom $(MULTIROM_INST_DIR)/multirom/
 	cp -a $(TARGET_ROOT_OUT)/trampoline $(MULTIROM_INST_DIR)/multirom/
-	cp -a $(INSTALLED_KERNEL_TARGET) $(MULTIROM_INST_DIR)/multirom/zImage
+	cp -a $(INSTALLED_BOOTIMAGE_TARGET) $(MULTIROM_INST_DIR)/multirom/boot.img
 	cp -a $(INSTALLED_RECOVERYIMAGE_TARGET) $(MULTIROM_INST_DIR)/twrp.blob
 	mkdir $(MULTIROM_INST_DIR)/multirom/infos
 	if [ -n "$(MR_INFOS)" ]; then cp -r $(PWD)/$(MR_INFOS)/* $(MULTIROM_INST_DIR)/multirom/infos/; fi

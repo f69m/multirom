@@ -2497,6 +2497,7 @@ int multirom_run_scripts(const char *type, struct multirom_rom *rom)
 
 #define RD_GZIP 1
 #define RD_LZ4  2
+#define RD_LZMA 3
 int multirom_update_rd_trampoline(const char *path)
 {
     int result = -1;
@@ -2528,6 +2529,11 @@ int multirom_update_rd_trampoline(const char *path)
     {
         type = RD_LZ4;
         snprintf(buff, sizeof(buff), "cd /mrom_rd; \"%s/lz4\" -d \"%s\" stdout | \"%s\" cpio -i", multirom_dir, path, busybox_path);
+    }
+    else if(magic == 0x8000005D)
+    {
+        type = RD_LZMA;
+        snprintf(buff, sizeof(buff), "B=\"%s\"; cd /mrom_rd; \"$B\" lzma -d -c \"%s\" | \"$B\" cpio -i", busybox_path, path);
     }
     else
     {
@@ -2586,6 +2592,9 @@ int multirom_update_rd_trampoline(const char *path)
             break;
         case RD_LZ4:
             snprintf(buff, sizeof(buff), "B=\"%s\"; cd /mrom_rd; \"$B\" find . | \"$B\" cpio -o -H newc | \"%s/lz4\" stdin \"%s\"", busybox_path, multirom_dir, path);
+            break;
+        case RD_LZMA:
+            snprintf(buff, sizeof(buff), "B=\"%s\"; cd /mrom_rd; \"$B\" find . | \"$B\" cpio -o -H newc | \"$B\" lzma > \"%s\"", busybox_path, path);
             break;
     }
 
