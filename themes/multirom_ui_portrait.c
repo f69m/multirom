@@ -60,7 +60,7 @@ static void init_header(multirom_theme_data *t)
     int i, text_x, text_y;
     int x = fb_width - (TAB_BTN_WIDTH*TAB_COUNT);
 
-    static const char *str[] = { "Internal", "USB", "Misc", "MultiROM" };
+    static const char *str[] = { "Internal", "SD/USB", "Misc", "MultiROM" };
 
     text_x = center_x(0, x, SIZE_EXTRA, str[3]);
     fb_add_text(text_x, 5, WHITE, SIZE_EXTRA, str[3]);
