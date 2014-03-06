@@ -795,8 +795,10 @@ int multirom_get_rom_type(struct multirom_rom *rom)
     }
 
 	// Handle Ubuntu Touch
-	if (!multirom_path_exists(b, "system.img") && !multirom_path_exists(b, "user-data") &&
-		!multirom_path_exists(b, "zImage") && !multirom_path_exists(b, "initrd.img"))
+	if (!multirom_path_exists(b, "data/system.img") &&
+		!multirom_path_exists(b, "data/SWAP.img") &&
+		!multirom_path_exists(b, "zImage") &&
+		!multirom_path_exists(b, "initrd.img"))
 	{
 		if(!rom->partition)
 			return ROM_UTOUCH_INTERNAL;
