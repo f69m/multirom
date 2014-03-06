@@ -45,6 +45,8 @@ LOCAL_STATIC_LIBRARIES := libcutils libc libm
 LOCAL_STATIC_LIBRARIES += libbootimg
 LOCAL_C_INCLUDES += external/libbootimg/include
 
+LOCAL_CFLAGS += -DVERSION_DAY='"-$(shell date +%Y%m%d)"'
+
 # Defines from device files
 # Init default define values
 MULTIROM_DEFAULT_ROTATION := 0

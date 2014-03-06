@@ -22,4 +22,9 @@
 
     // For device-specific fixes. Use letters, the version will then be like "12a"
     #define VERSION_DEV_FIX ""
+
+	#ifndef VERSION_DAY
+		#define VERSION_DAY ""
+	#endif
+
 #endif
