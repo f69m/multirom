@@ -921,12 +921,13 @@ int multirom_prepare_for_boot(struct multirom_status *s, struct multirom_rom *to
 
     switch(type)
     {
-        case ROM_DEFAULT:
         case ROM_LINUX_INTERNAL:
         case ROM_LINUX_USB:
         case ROM_UTOUCH_INTERNAL:
         case ROM_UTOUCH_USB:
             break;
+
+        case ROM_DEFAULT:
         case ROM_ANDROID_USB_IMG:
         case ROM_ANDROID_USB_DIR:
         case ROM_ANDROID_INTERNAL:
@@ -938,7 +939,7 @@ int multirom_prepare_for_boot(struct multirom_status *s, struct multirom_rom *to
                 if(multirom_prep_android_mounts(to_boot) == -1)
                     return -1;
 
-                if(multirom_create_media_link() == -1)
+                if ((type != ROM_DEFAULT) && (multirom_create_media_link() == -1))
                     return -1;
             }
 
@@ -1007,6 +1008,9 @@ int multirom_prep_android_mounts(struct multirom_rom *rom)
     DIR *d = opendir(path);
     if(!d)
     {
+        // For primary ROM just return, if the initrd overlay does not exist
+        if (rom->type == ROM_DEFAULT) return 0;
+
         ERROR("Failed to open rom path %s", path);
         return -1;
     }
@@ -1033,6 +1037,10 @@ int multirom_prep_android_mounts(struct multirom_rom *rom)
         }
     }
     closedir(d);
+
+    // For primary ROM return after updating initrd
+    if (rom->type == ROM_DEFAULT)
+        return 0;
 
     if(multirom_process_android_fstab(fstab_name, has_fw) != 0)
         return -1;
